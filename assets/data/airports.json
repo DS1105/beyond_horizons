@@ -1,0 +1,181 @@
+{
+  "airports": {
+    "Europe": {
+      "Germany": {
+        "Frankfurt": [
+          {
+            "name": "Frankfurt Airport",
+            "iataCode": "FRA",
+            "icaoCode": "EDDF",
+            "country": "Germany",
+            "city": "Frankfurt",
+            "region": "Europe",
+            "slotCapacity": 500000,
+            "currentSlotUsage": 300000,
+            "terminalCapacity": 200000,
+            "currentTerminalUsage": 150000,
+            "maxCapacity": 800000,
+            "latitude": 50.0379,
+            "longitude": 8.5622,
+            "isHub": true,
+            "hubLevel": 5
+          }
+        ],
+        "Munich": [
+          {
+            "name": "Munich Airport",
+            "iataCode": "MUC",
+            "icaoCode": "EDDM",
+            "country": "Germany",
+            "city": "Munich",
+            "region": "Europe",
+            "slotCapacity": 400000,
+            "currentSlotUsage": 150000,
+            "terminalCapacity": 100000,
+            "currentTerminalUsage": 50000,
+            "maxCapacity": 600000,
+            "latitude": 48.3537,
+            "longitude": 11.7750,
+            "isHub": true,
+            "hubLevel": 4
+          }
+        ]
+      },
+      "France": {
+        "Paris": [
+          {
+            "name": "Charles de Gaulle Airport",
+            "iataCode": "CDG",
+            "icaoCode": "LFPG",
+            "country": "France",
+            "city": "Paris",
+            "region": "Europe",
+            "slotCapacity": 700000,
+            "currentSlotUsage": 500000,
+            "terminalCapacity": 300000,
+            "currentTerminalUsage": 250000,
+            "maxCapacity": 900000,
+            "latitude": 49.0097,
+            "longitude": 2.5479,
+            "isHub": true,
+            "hubLevel": 5
+          },
+          {
+            "name": "Orly Airport",
+            "iataCode": "ORY",
+            "icaoCode": "LFPO",
+            "country": "France",
+            "city": "Paris",
+            "region": "Europe",
+            "slotCapacity": 350000,
+            "currentSlotUsage": 200000,
+            "terminalCapacity": 150000,
+            "currentTerminalUsage": 100000,
+            "maxCapacity": 400000,
+            "latitude": 48.7233,
+            "longitude": 2.3794,
+            "isHub": false,
+            "hubLevel": 3
+          }
+        ]
+      },
+      "United Kingdom": {
+        "London": [
+          {
+            "name": "Heathrow Airport",
+            "iataCode": "LHR",
+            "icaoCode": "EGLL",
+            "country": "United Kingdom",
+            "city": "London",
+            "region": "Europe",
+            "slotCapacity": 650000,
+            "currentSlotUsage": 550000,
+            "terminalCapacity": 280000,
+            "currentTerminalUsage": 240000,
+            "maxCapacity": 800000,
+            "latitude": 51.4700,
+            "longitude": -0.4543,
+            "isHub": true,
+            "hubLevel": 5
+          },
+          {
+            "name": "Gatwick Airport",
+            "iataCode": "LGW",
+            "icaoCode": "EGKK",
+            "country": "United Kingdom",
+            "city": "London",
+            "region": "Europe",
+            "slotCapacity": 400000,
+            "currentSlotUsage": 300000,
+            "terminalCapacity": 150000,
+            "currentTerminalUsage": 120000,
+            "maxCapacity": 500000,
+            "latitude": 51.1481,
+            "longitude": -0.1903,
+            "isHub": false,
+            "hubLevel": 3
+          }
+        ]
+      }
+    },
+    "North America": {
+      "United States": {
+        "New York": [
+          {
+            "name": "John F. Kennedy International Airport",
+            "iataCode": "JFK",
+            "icaoCode": "KJFK",
+            "country": "United States",
+            "city": "New York",
+            "region": "North America",
+            "slotCapacity": 600000,
+            "currentSlotUsage": 450000,
+            "terminalCapacity": 250000,
+            "currentTerminalUsage": 200000,
+            "maxCapacity": 750000,
+            "latitude": 40.6413,
+            "longitude": -73.7781,
+            "isHub": true,
+            "hubLevel": 5
+          },
+          {
+            "name": "LaGuardia Airport",
+            "iataCode": "LGA",
+            "icaoCode": "KLGA",
+            "country": "United States",
+            "city": "New York",
+            "region": "North America",
+            "slotCapacity": 400000,
+            "currentSlotUsage": 300000,
+            "terminalCapacity": 120000,
+            "currentTerminalUsage": 100000,
+            "maxCapacity": 450000,
+            "latitude": 40.7769,
+            "longitude": -73.8740,
+            "isHub": false,
+            "hubLevel": 3
+          }
+        ],
+        "Los Angeles": [
+          {
+            "name": "Los Angeles International Airport",
+            "iataCode": "LAX",
+            "icaoCode": "KLAX",
+            "country": "United States",
+            "city": "Los Angeles",
+            "region": "North America",
+            "slotCapacity": 700000,
+            "currentSlotUsage": 600000,
+            "terminalCapacity": 300000,
+            "currentTerminalUsage": 280000,
+            "maxCapacity": 900000,
+            "latitude": 33.9425,
+            "longitude": -118.4081,
+            "isHub": true,
+            "hubLevel": 5
+          }
+        ]
+      }
+    }
+  }
+}

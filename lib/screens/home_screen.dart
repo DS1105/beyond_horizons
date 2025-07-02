@@ -1,102 +1,121 @@
-import 'package:beyond_horizons/models/flughafen.dart';
+// Import statements for required models and screens
+import 'package:beyond_horizons/models/airport.dart';
 import 'package:beyond_horizons/models/airline.dart';
-import 'package:beyond_horizons/models/flugzeug.dart';
-import 'package:beyond_horizons/screens/route_erstellen_screen.dart';
-import 'package:beyond_horizons/screens/flugzeug_kauf_screen.dart'; // Importiere den Flugzeug Kauf Screen
+import 'package:beyond_horizons/models/aircraft.dart';
+import 'package:beyond_horizons/screens/route_creation_screen.dart';
+import 'package:beyond_horizons/screens/aircraft_purchase_screen.dart'; // Aircraft purchase functionality
+import 'package:beyond_horizons/services/airport_data_service.dart';
 import 'package:flutter/material.dart';
 
+/// Main home screen of the airline simulation app
+/// Displays available airports and provides navigation to other features
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+/// State class for the HomeScreen widget
+/// Manages airport data and aircraft purchases
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Flughafen> flughafenListe = [
-    Flughafen(
-      name: "Flughafen Frankfurt",
-      land: "Deutschland",
-      city: "Frankfurt",
-      slotKapazitaet: 500000,
-      aktuelleSlotNutzung: 300000,
-      terminalKapazitaet: 200000,
-      aktuelleTerminalNutzung: 150000,
-      maxKapazitaet: 800000,
-    ),
-    Flughafen(
-      name: "Flughafen München",
-      land: "Deutschland",
-      city: "München",
-      slotKapazitaet: 400000,
-      aktuelleSlotNutzung: 150000,
-      terminalKapazitaet: 100000,
-      aktuelleTerminalNutzung: 50000,
-      maxKapazitaet: 600000,
-    ),
-    Flughafen(
-      name: "Flughafen Berlin",
-      land: "Deutschland",
-      city: "Berlin",
-      slotKapazitaet: 300000,
-      aktuelleSlotNutzung: 200000,
-      terminalKapazitaet: 150000,
-      aktuelleTerminalNutzung: 120000,
-      maxKapazitaet: 500000,
-    ),
-  ];
+  /// List of available airports in the simulation - loaded from central data
+  List<Airport> airportList = [];
 
-  List<Flugzeug> gekaufteFlugzeuge = []; // Liste der gekauften Flugzeuge
+  /// List of aircraft purchased by the player
+  /// Starts empty and gets populated through purchases
+  List<Aircraft> purchasedAircraft = [];
 
-  void updateKapazitaet(Flughafen flughafen, int verbrauchteSlots) {
+  @override
+  void initState() {
+    super.initState();
+    // Load airports from central data source
+    _loadAirports();
+  }
+
+  /// Load airports using the new async data service
+  Future<void> _loadAirports() async {
+    try {
+      final airports = await AirportDataService.getAllAirports();
+      setState(() {
+        airportList = airports;
+      });
+    } catch (e) {
+      print('Error loading airports: $e');
+      // Show error message to user
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to load airport data')));
+    }
+  }
+
+  /// Updates airport capacity when new routes are created
+  /// [airport] - The airport to update
+  /// [usedSlots] - Number of additional slots to mark as used
+  void updateCapacity(Airport airport, int usedSlots) {
     setState(() {
-      flughafen.aktuelleSlotNutzung += verbrauchteSlots;
+      airport.currentSlotUsage += usedSlots; // Increase used slots
     });
   }
 
+  /// Builds the main UI for the home screen
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Home Screen")),
+      appBar: AppBar(title: Text("Home Screen")), // Main navigation bar
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Verfügbare Flughäfen:", style: TextStyle(fontSize: 18)),
+            // Header text for airport list
+            Text("Available Airports:", style: TextStyle(fontSize: 18)),
             SizedBox(height: 20),
+            // Scrollable list of available airports
             Expanded(
               child: ListView.builder(
-                itemCount: flughafenListe.length,
+                itemCount: airportList.length,
                 itemBuilder: (context, index) {
-                  final flughafen = flughafenListe[index];
+                  final airport = airportList[index];
                   return ListTile(
-                    title: Text(flughafen.name),
+                    leading:
+                        airport.isHub
+                            ? Icon(Icons.hub, color: Colors.blue)
+                            : Icon(Icons.flight_takeoff, color: Colors.grey),
+                    title: Text(
+                      "${airport.name} (${airport.iataCode})",
+                    ), // Airport name with IATA
                     subtitle: Text(
-                      "Stadt: ${flughafen.city}\nLand: ${flughafen.land}\n"
-                      "Verfügbare Slots: ${flughafen.slotKapazitaet - flughafen.aktuelleSlotNutzung} / ${flughafen.slotKapazitaet} Slots\n"
-                      "Verfügbare Terminal Kapazität: ${flughafen.terminalKapazitaet - flughafen.aktuelleTerminalNutzung} / ${flughafen.terminalKapazitaet} Terminal Kapazität",
+                      // Detailed airport information with hub level
+                      "${airport.city}, ${airport.country} • ${airport.hubLevelDescription}\n"
+                      "Available Slots: ${airport.availableSlotCapacity} / ${airport.slotCapacity}\n"
+                      "Terminal Capacity: ${airport.availableTerminalCapacity} / ${airport.terminalCapacity}",
                     ),
+                    trailing:
+                        airport.isCongested
+                            ? Icon(Icons.warning, color: Colors.orange)
+                            : Icon(Icons.check_circle, color: Colors.green),
+                    // Navigate to route creation when airport is tapped
                     onTap: () async {
                       final route = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder:
-                              (context) => RouteErstellenScreen(
-                                startFlughafen: flughafen,
-                                zielFlughafen: flughafenListe.firstWhere(
-                                  (f) => f != flughafen,
-                                ),
+                              (context) => RouteCreationScreen(
                                 airline: Airline(
-                                  name: 'Air Berlin',
-                                  flughafen: flughafen,
+                                  name: 'Air Berlin', // Default airline name
+                                  airport: airport, // Base airport for airline
                                 ),
-                                gekaufteFlugzeuge:
-                                    gekaufteFlugzeuge, // Gekaufte Flugzeuge übergeben
+                                purchasedAircraft:
+                                    purchasedAircraft, // Pass owned aircraft list
+                                initialStartAirport:
+                                    airport, // Pre-select this airport as start
                               ),
                         ),
                       );
+                      // Update airport capacity if route was successfully created
                       if (route != null) {
-                        // Update the capacity after creating the route
-                        updateKapazitaet(flughafen, route.fluegeProWoche * 180);
+                        // Calculate slot usage: flights per week * estimated passengers per flight
+                        updateCapacity(airport, route.flightsPerWeek * 180);
                       }
                     },
                   );
@@ -104,49 +123,61 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             SizedBox(height: 20),
+            // Button to create a new route between first and last airports
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder:
-                        (context) => RouteErstellenScreen(
-                          startFlughafen: flughafenListe.first,
-                          zielFlughafen: flughafenListe.last,
+                        (context) => RouteCreationScreen(
                           airline: Airline(
-                            name: 'Air Berlin',
-                            flughafen: flughafenListe.first,
+                            name: 'Air Berlin', // Default airline
+                            airport: airportList.first, // Base at first airport
                           ),
-                          gekaufteFlugzeuge:
-                              gekaufteFlugzeuge, // Gekaufte Flugzeuge übergeben
+                          purchasedAircraft:
+                              purchasedAircraft, // Pass owned aircraft
+                          initialStartAirport:
+                              airportList.first, // First airport in list
+                          initialDestinationAirport:
+                              airportList.last, // Last airport in list
                         ),
                   ),
                 );
               },
-              child: Text("Route Erstellen"),
+              child: Text("Create Route"), // Direct route creation button
             ),
+            // Button to navigate to aircraft purchase screen
             ElevatedButton(
               onPressed: () async {
-                final gekauftesFlugzeug = await Navigator.push(
+                // Navigate to aircraft purchase screen and wait for result
+                final purchasedAircraftResult = await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => FlugzeugKaufScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => AircraftPurchaseScreen(),
+                  ),
                 );
-                if (gekauftesFlugzeug != null) {
+                // Add newly purchased aircraft to the fleet
+                if (purchasedAircraftResult != null) {
                   setState(() {
-                    gekaufteFlugzeuge.addAll(
-                      gekauftesFlugzeug,
-                    ); // Flugzeuge zur Liste hinzufügen
+                    purchasedAircraft.addAll(
+                      purchasedAircraftResult, // Merge new aircraft into existing list
+                    );
                   });
                 }
               },
-              child: Text("Flugzeug Kaufen"),
+              child: Text("Purchase Aircraft"), // Aircraft purchase button
             ),
 
+            // Placeholder button for future route viewing functionality
             ElevatedButton(
               onPressed: () {
-                // Hier kannst du eine Route anzeigen lassen, wenn gewünscht
+                // TODO: Implement route viewing functionality
+                // This will display all created routes and their details
               },
-              child: Text("Routen Ansehen"),
+              child: Text(
+                "View Routes",
+              ), // Route viewing button (not implemented yet)
             ),
           ],
         ),
