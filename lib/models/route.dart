@@ -1,42 +1,57 @@
-// route.dart
-import 'package:beyond_horizons/models/flughafen.dart';
-import 'flugzeug.dart';
+/// Flight route model representing a connection between two airports
+/// Manages route-specific data including aircraft assignment and capacity calculations
+import 'package:beyond_horizons/models/airport.dart';
+import 'aircraft.dart';
 
-class Route {
-  final Flughafen startFlughafen;
-  final Flughafen zielFlughafen;
-  final List<Flugzeug> flugzeuge; // Liste von zugewiesenen Flugzeugen
-  int fluegeProWoche; // Flüge pro Woche
-  final Map<String, double> ticketPreise;
-  bool bordservice;
+/// FlightRoute class representing an active flight route in the simulation
+/// Connects two airports with assigned aircraft and flight schedules
+class FlightRoute {
+  final Airport startAirport; // Departure airport
+  final Airport destinationAirport; // Arrival airport
+  final List<Aircraft> aircraft; // Aircraft assigned to this route
+  int flightsPerWeek; // Number of flights per week on this route
+  final Map<String, double>
+  ticketPrices; // Ticket prices by class (Economy, Business, etc.)
+  bool onboardService; // Whether onboard services are provided
 
-  Route({
-    required this.startFlughafen,
-    required this.zielFlughafen,
-    required this.flugzeuge,
-    required this.fluegeProWoche,
-    required this.ticketPreise,
-    required this.bordservice,
+  /// Constructor for creating a new FlightRoute
+  /// Requires airports, aircraft, and operational parameters
+  FlightRoute({
+    required this.startAirport,
+    required this.destinationAirport,
+    required this.aircraft, // List of aircraft operating this route
+    required this.flightsPerWeek, // Weekly flight frequency
+    required this.ticketPrices, // Pricing structure
+    required this.onboardService, // Service level
   });
 
-  double berechneKapazitaet() {
-    // Berechne die Kapazität basierend auf der Anzahl der Flugzeuge und Flüge pro Woche
-    const int passagiereProFlugzeug =
-        180; // Standard: 180 Passagiere pro Flugzeug
+  /// Calculates the total passenger capacity for this route
+  /// Based on number of aircraft, flights per week, and passengers per aircraft
+  /// Returns total weekly passenger capacity
+  double calculateCapacity() {
+    // Standard passenger count per aircraft (can be made dynamic later)
+    const int passengersPerAircraft = 180;
 
-    // Sicherstellen, dass fluegeProWoche als double behandelt wird
-    double fluegeProWocheDouble = fluegeProWoche.toDouble();
+    // Convert flights per week to double for calculation
+    double flightsPerWeekDouble = flightsPerWeek.toDouble();
 
-    // Berechnung der Kapazität
-    final double kapazitaet =
-        flugzeuge.length * fluegeProWocheDouble * passagiereProFlugzeug;
+    // Calculate total weekly capacity: aircraft × flights × passengers
+    final double capacity =
+        aircraft.length * flightsPerWeekDouble * passengersPerAircraft;
 
-    return kapazitaet;
+    return capacity;
   }
 
-  // Optionale Methode, die die Kapazität in einem menschenfreundlicheren Format anzeigt
-  String getKapazitaetAnzeige() {
-    final kapazitaet = berechneKapazitaet();
-    return 'Kapazität: ${kapazitaet.toStringAsFixed(0)} Passagiere';
+  /// Returns a formatted string displaying the route's capacity
+  /// Provides user-friendly capacity information
+  String getCapacityDisplay() {
+    final capacity = calculateCapacity();
+    return 'Capacity: ${capacity.toStringAsFixed(0)} Passengers per Week';
   }
+
+  // TODO: Add methods for:
+  // - Revenue calculation
+  // - Operating cost calculation
+  // - Profitability analysis
+  // - Route efficiency metrics
 }
