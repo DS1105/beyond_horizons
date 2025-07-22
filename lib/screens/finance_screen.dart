@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:beyond_horizons/services/finance_manager.dart';
 
 /// Screen für Finanz-Verwaltung und Übersicht
 class FinanceScreen extends StatefulWidget {
@@ -7,6 +8,8 @@ class FinanceScreen extends StatefulWidget {
 }
 
 class _FinanceScreenState extends State<FinanceScreen> {
+  final FinanceManager financeManager = FinanceManager();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +47,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      "1.000.000,00 €",
+                      financeManager.formattedCapital,
                       style: TextStyle(
                         fontSize: 24,
                         color: Colors.green,
@@ -79,14 +82,14 @@ class _FinanceScreenState extends State<FinanceScreen> {
                           "Einnahmen:",
                           style: TextStyle(color: Colors.green),
                         ),
-                        Text("0,00 €", style: TextStyle(color: Colors.green)),
+                        Text("0 USD", style: TextStyle(color: Colors.green)),
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text("Ausgaben:", style: TextStyle(color: Colors.red)),
-                        Text("0,00 €", style: TextStyle(color: Colors.red)),
+                        Text("0 USD", style: TextStyle(color: Colors.red)),
                       ],
                     ),
                     Divider(),
@@ -98,8 +101,58 @@ class _FinanceScreenState extends State<FinanceScreen> {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          "0,00 €",
+                          "0 USD",
                           style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+
+            // Test-Buttons für Kapital-Änderungen (nur für Entwicklung)
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Kapital-Aktionen",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              financeManager.addCapital(500000);
+                            });
+                          },
+                          child: Text("+ 500k"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              financeManager.removeCapital(100000);
+                            });
+                          },
+                          child: Text("- 100k"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              financeManager.setCapital(1000000);
+                            });
+                          },
+                          child: Text("Reset"),
                         ),
                       ],
                     ),

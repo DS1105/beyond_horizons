@@ -9,7 +9,8 @@ class Route {
   final int? id; // null during creation, assigned when saved
   Airport? startAirport; // Departure airport
   Airport? endAirport; // Destination airport
-  Aircraft? selectedAircraft; // Primary aircraft for this route (backward compatibility)
+  Aircraft?
+  selectedAircraft; // Primary aircraft for this route (backward compatibility)
   List<Aircraft> aircraft = []; // All aircraft assigned to this route
   int? flightsPerWeek; // Number of flights per week
   bool? freeFood; // Whether free food is provided
@@ -49,7 +50,10 @@ class Route {
       startAirport: tempRoute.startAirport!,
       endAirport: tempRoute.endAirport!,
       selectedAircraft: tempRoute.selectedAircraft!,
-      aircraftList: tempRoute.aircraft.isNotEmpty ? tempRoute.aircraft : [tempRoute.selectedAircraft!],
+      aircraftList:
+          tempRoute.aircraft.isNotEmpty
+              ? tempRoute.aircraft
+              : [tempRoute.selectedAircraft!],
       flightsPerWeek: tempRoute.flightsPerWeek!,
       freeFood: tempRoute.freeFood!,
     );
@@ -114,8 +118,10 @@ class Route {
   /// Based on flights per week and passengers per aircraft
   /// Returns total weekly passenger capacity
   double calculateCapacity() {
-    if ((aircraft.isEmpty && selectedAircraft == null) || flightsPerWeek == null) return 0.0;
-    
+    if ((aircraft.isEmpty && selectedAircraft == null) ||
+        flightsPerWeek == null)
+      return 0.0;
+
     // Standard passenger count per aircraft (can be made dynamic later)
     const int passengersPerAircraft = 180;
 
@@ -123,7 +129,10 @@ class Route {
     int aircraftCountForCalc = aircraft.isNotEmpty ? aircraft.length : 1;
 
     // Calculate total weekly capacity: aircraft count × flights × passengers
-    final double capacity = aircraftCountForCalc * flightsPerWeek! * passengersPerAircraft.toDouble();
+    final double capacity =
+        aircraftCountForCalc *
+        flightsPerWeek! *
+        passengersPerAircraft.toDouble();
 
     return capacity;
   }

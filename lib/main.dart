@@ -1,6 +1,8 @@
 /// Main entry point for the Beyond Horizons airline simulation app
 /// Sets up the Flutter application with theme and initial screen
 import 'package:beyond_horizons/screens/home_screen.dart';
+import 'package:beyond_horizons/screens/game_start_screen.dart';
+import 'package:beyond_horizons/services/finance_manager.dart';
 import 'package:flutter/material.dart';
 
 /// Application entry point
@@ -25,7 +27,10 @@ class MyApp extends StatelessWidget {
           255,
         ), // Nur das nötigste: Scaffold weiß
       ),
-      home: HomeScreen(), // Set HomeScreen as the initial screen
+      home:
+          FinanceManager().isInitialized
+              ? HomeScreen()
+              : GameStartScreen(), // Zeige GameStart wenn nicht initialisiert
     );
   }
 }

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:beyond_horizons/models/route.dart' as RouteModel;
+import 'package:beyond_horizons/services/route_manager.dart';
 
 /// Route Creation Screen 4
-/// Service-Optionen auswählen
+/// Service-Optionen auswählen und Route finalisieren
 class RouteCreationScreen4 extends StatefulWidget {
+  final RouteModel.Route route; // Temporary route from previous screen
+
+  const RouteCreationScreen4({Key? key, required this.route}) : super(key: key);
+
   @override
   _RouteCreationScreen4State createState() => _RouteCreationScreen4State();
 }
@@ -80,10 +86,18 @@ class _RouteCreationScreen4State extends State<RouteCreationScreen4> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
+                  // Save free food option to route
+                  widget.route.freeFood = kostenlosesEssen;
+
+                  // Create persistent route through RouteManager
+                  RouteManager().addRoute(widget.route);
+
                   // Erfolgs-Nachricht anzeigen
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text("Route erfolgreich erstellt!"),
+                      content: Text(
+                        "Route ${widget.route.routeName} erfolgreich erstellt!",
+                      ),
                       backgroundColor: Colors.green,
                     ),
                   );

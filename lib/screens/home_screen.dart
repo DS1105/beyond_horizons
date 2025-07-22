@@ -3,6 +3,8 @@ import 'package:beyond_horizons/screens/aircraft_purchase_screen.dart';
 import 'package:beyond_horizons/screens/routes_overview_screen.dart';
 import 'package:beyond_horizons/screens/finance_screen.dart';
 import 'package:beyond_horizons/screens/route_creation_screen_1.dart';
+import 'package:beyond_horizons/screens/own_aircraft_screen.dart';
+import 'package:beyond_horizons/services/airline_manager.dart';
 
 /// Einfaches Dashboard für die Airline-Simulation
 class HomeScreen extends StatefulWidget {
@@ -11,10 +13,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String airlineName = AirlineManager().airlineName;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Beyond Horizons - Dashboard")),
+      appBar: AppBar(title: Text("Dashboard")),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -22,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Titel
             Text(
-              "Airline Management",
+              "${AirlineManager().airlineName} Management",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 30),
@@ -44,9 +47,24 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 15),
 
             _buildDashboardButton(
-              icon: Icons.airplanemode_active,
-              title: "Eigene Flugzeuge",
-              subtitle: "Flotte erweitern und verwalten",
+              icon: Icons.list,
+              title: "Routen anzeigen",
+              subtitle: "Alle Verbindungen verwalten",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RoutesOverviewScreen(),
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: 15),
+
+            _buildDashboardButton(
+              icon: Icons.shopping_cart,
+              title: "Flugzeuge kaufen",
+              subtitle: "Flotte erweitern",
               onPressed: () {
                 Navigator.push(
                   context,
@@ -59,15 +77,13 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 15),
 
             _buildDashboardButton(
-              icon: Icons.list,
-              title: "Routen anzeigen",
-              subtitle: "Alle Verbindungen verwalten",
+              icon: Icons.flight,
+              title: "Eigene Flugzeuge",
+              subtitle: "Flotte anzeigen und verwalten",
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => RoutesOverviewScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => OwnAircraftScreen()),
                 );
               },
             ),
