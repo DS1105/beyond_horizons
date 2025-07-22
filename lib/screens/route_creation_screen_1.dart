@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:beyond_horizons/models/airport.dart';
+import 'package:beyond_horizons/models/route.dart' as RouteModel;
 import 'package:beyond_horizons/services/airport_data_service.dart';
 import 'package:beyond_horizons/screens/route_creation_screen_2.dart';
 
@@ -11,6 +12,9 @@ class RouteCreationScreen1 extends StatefulWidget {
 }
 
 class _RouteCreationScreen1State extends State<RouteCreationScreen1> {
+  // Temporary route that gets filled during creation process
+  late RouteModel.Route tempRoute;
+
   // Verfügbare Flughäfen
   List<Airport> availableAirports = [];
 
@@ -33,6 +37,8 @@ class _RouteCreationScreen1State extends State<RouteCreationScreen1> {
   @override
   void initState() {
     super.initState();
+    // Create new temporary route for this creation process
+    tempRoute = RouteModel.Route.createNew();
     _loadAirports();
   }
 
@@ -119,12 +125,14 @@ class _RouteCreationScreen1State extends State<RouteCreationScreen1> {
   void _selectStartAirport(Airport airport) {
     setState(() {
       selectedStartAirport = airport;
+      tempRoute.startAirport = airport; // Save to temporary route
       startController.text = "${airport.name} (${airport.iataCode})";
       showStartDropdown = false;
 
       // Ziel löschen falls gleich wie Start
       if (selectedDestinationAirport == airport) {
         selectedDestinationAirport = null;
+        tempRoute.endAirport = null; // Clear from temporary route
         destinationController.clear();
       }
     });
@@ -134,29 +142,21 @@ class _RouteCreationScreen1State extends State<RouteCreationScreen1> {
   void _selectDestinationAirport(Airport airport) {
     setState(() {
       selectedDestinationAirport = airport;
+      tempRoute.endAirport = airport; // Save to temporary route
       destinationController.text = "${airport.name} (${airport.iataCode})";
       showDestinationDropdown = false;
 
       // Start löschen falls gleich wie Ziel
       if (selectedStartAirport == airport) {
         selectedStartAirport = null;
+        tempRoute.startAirport = null; // Clear from temporary route
         startController.clear();
       }
     });
   }
 
-  /// Distanz berechnen
-  double? _calculateDistance() {
-    if (selectedStartAirport != null && selectedDestinationAirport != null) {
-      return selectedStartAirport!.distanceTo(selectedDestinationAirport!);
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
-    double? distance = _calculateDistance();
-
     return Scaffold(
       appBar: AppBar(title: Text("Route erstellen")),
       body: GestureDetector(
@@ -264,7 +264,8 @@ class _RouteCreationScreen1State extends State<RouteCreationScreen1> {
               SizedBox(height: 30),
 
               // Distanz-Anzeige
-              if (distance != null)
+              if (selectedStartAirport != null &&
+                  selectedDestinationAirport != null)
                 Card(
                   color: Colors.blue[50],
                   child: Padding(
@@ -294,7 +295,7 @@ class _RouteCreationScreen1State extends State<RouteCreationScreen1> {
                         ),
                         SizedBox(height: 5),
                         Text(
-                          "Entfernung: ${distance.round()} km",
+                          "Entfernung: ${selectedStartAirport!.distanceTo(selectedDestinationAirport!).round()} km",
                           style: TextStyle(
                             fontSize: 20,
                             color: Colors.blue,
@@ -318,7 +319,10 @@ class _RouteCreationScreen1State extends State<RouteCreationScreen1> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RouteCreationScreen2(),
+                          builder:
+                              (context) => RouteCreationScreen2(
+                                route: tempRoute, // Pass the temporary route
+                              ),
                         ),
                       );
                     },
