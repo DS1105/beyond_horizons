@@ -11,14 +11,17 @@
             "city": "Frankfurt",
             "region": "Europe",
             "slotCapacity": 500000,
-            "currentSlotUsage": 300000,
+            "currentSlotUsage": 0,
             "terminalCapacity": 200000,
-            "currentTerminalUsage": 150000,
+            "currentTerminalUsage": 0,
             "maxCapacity": 800000,
             "latitude": 50.0379,
             "longitude": 8.5622,
-            "isHub": true,
-            "hubLevel": 5
+            "demand": {
+              "economy": 450,
+              "business": 350,
+              "first": 250
+            }
           }
         ],
         "Munich": [
@@ -30,14 +33,17 @@
             "city": "Munich",
             "region": "Europe",
             "slotCapacity": 400000,
-            "currentSlotUsage": 150000,
+            "currentSlotUsage": 0,
             "terminalCapacity": 100000,
-            "currentTerminalUsage": 50000,
+            "currentTerminalUsage": 0,
             "maxCapacity": 600000,
             "latitude": 48.3537,
             "longitude": 11.7750,
-            "isHub": true,
-            "hubLevel": 4
+            "demand": {
+              "economy": 380,
+              "business": 280,
+              "first": 180
+            }
           }
         ]
       },
@@ -51,14 +57,17 @@
             "city": "Paris",
             "region": "Europe",
             "slotCapacity": 700000,
-            "currentSlotUsage": 500000,
+            "currentSlotUsage": 0,
             "terminalCapacity": 300000,
-            "currentTerminalUsage": 250000,
+            "currentTerminalUsage": 0,
             "maxCapacity": 900000,
             "latitude": 49.0097,
             "longitude": 2.5479,
-            "isHub": true,
-            "hubLevel": 5
+            "demand": {
+              "economy": 480,
+              "business": 380,
+              "first": 280
+            }
           },
           {
             "name": "Orly Airport",
@@ -68,14 +77,17 @@
             "city": "Paris",
             "region": "Europe",
             "slotCapacity": 350000,
-            "currentSlotUsage": 200000,
+            "currentSlotUsage": 0,
             "terminalCapacity": 150000,
-            "currentTerminalUsage": 100000,
+            "currentTerminalUsage": 0,
             "maxCapacity": 400000,
             "latitude": 48.7233,
             "longitude": 2.3794,
-            "isHub": false,
-            "hubLevel": 3
+            "demand": {
+              "economy": 250,
+              "business": 180,
+              "first": 120
+            }
           }
         ]
       },
@@ -89,14 +101,17 @@
             "city": "London",
             "region": "Europe",
             "slotCapacity": 650000,
-            "currentSlotUsage": 550000,
+            "currentSlotUsage": 0,
             "terminalCapacity": 280000,
-            "currentTerminalUsage": 240000,
+            "currentTerminalUsage": 0,
             "maxCapacity": 800000,
             "latitude": 51.4700,
             "longitude": -0.4543,
-            "isHub": true,
-            "hubLevel": 5
+            "demand": {
+              "economy": 520,
+              "business": 420,
+              "first": 320
+            }
           },
           {
             "name": "Gatwick Airport",
@@ -106,14 +121,17 @@
             "city": "London",
             "region": "Europe",
             "slotCapacity": 400000,
-            "currentSlotUsage": 300000,
+            "currentSlotUsage": 0,
             "terminalCapacity": 150000,
-            "currentTerminalUsage": 120000,
+            "currentTerminalUsage": 0,
             "maxCapacity": 500000,
             "latitude": 51.1481,
             "longitude": -0.1903,
-            "isHub": false,
-            "hubLevel": 3
+            "demand": {
+              "economy": 320,
+              "business": 220,
+              "first": 140
+            }
           }
         ]
       }
@@ -129,14 +147,17 @@
             "city": "New York",
             "region": "North America",
             "slotCapacity": 600000,
-            "currentSlotUsage": 450000,
+            "currentSlotUsage": 0,
             "terminalCapacity": 250000,
-            "currentTerminalUsage": 200000,
+            "currentTerminalUsage": 0,
             "maxCapacity": 750000,
             "latitude": 40.6413,
             "longitude": -73.7781,
-            "isHub": true,
-            "hubLevel": 5
+            "demand": {
+              "economy": 500,
+              "business": 400,
+              "first": 300
+            }
           },
           {
             "name": "LaGuardia Airport",
@@ -146,14 +167,17 @@
             "city": "New York",
             "region": "North America",
             "slotCapacity": 400000,
-            "currentSlotUsage": 300000,
+            "currentSlotUsage": 0,
             "terminalCapacity": 120000,
-            "currentTerminalUsage": 100000,
+            "currentTerminalUsage": 0,
             "maxCapacity": 450000,
             "latitude": 40.7769,
             "longitude": -73.8740,
-            "isHub": false,
-            "hubLevel": 3
+            "demand": {
+              "economy": 340,
+              "business": 240,
+              "first": 160
+            }
           }
         ],
         "Los Angeles": [
@@ -165,14 +189,17 @@
             "city": "Los Angeles",
             "region": "North America",
             "slotCapacity": 700000,
-            "currentSlotUsage": 600000,
+            "currentSlotUsage": 0,
             "terminalCapacity": 300000,
-            "currentTerminalUsage": 280000,
+            "currentTerminalUsage": 0,
             "maxCapacity": 900000,
             "latitude": 33.9425,
             "longitude": -118.4081,
-            "isHub": true,
-            "hubLevel": 5
+            "demand": {
+              "economy": 490,
+              "business": 390,
+              "first": 290
+            }
           }
         ]
       }

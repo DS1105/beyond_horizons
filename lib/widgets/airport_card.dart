@@ -24,7 +24,7 @@ class AirportCard extends StatelessWidget {
           "${airport.name} (${airport.iataCode})",
         ), // Primary text: airport name with IATA
         subtitle: Text(
-          "${airport.city}, ${airport.country} • ${airport.hubLevelDescription}",
+          "${airport.city}, ${airport.country}}",
         ), // Secondary text: location and hub level
         trailing:
             airport.isCongested

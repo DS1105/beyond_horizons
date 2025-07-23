@@ -336,7 +336,6 @@ class _AdvancedAirportSelectorState extends State<AdvancedAirportSelector> {
           Row(
             children: [
               Icon(Icons.star, size: 16, color: Colors.amber),
-              Text(" ${airport.hubLevelDescription}"),
               if (distanceText != null) ...[
                 Text(" • "),
                 Icon(Icons.flight, size: 16, color: Colors.grey),

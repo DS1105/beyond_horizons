@@ -82,10 +82,7 @@ class AirportDetailsScreen extends StatelessWidget {
                         "Region: ${airport.region}",
                         style: TextStyle(fontSize: 16),
                       ),
-                      Text(
-                        "Hub Level: ${airport.hubLevelDescription}",
-                        style: TextStyle(fontSize: 16),
-                      ),
+
                       Text(
                         "Coordinates: ${airport.latitude.toStringAsFixed(4)}, ${airport.longitude.toStringAsFixed(4)}",
                         style: TextStyle(fontSize: 16),

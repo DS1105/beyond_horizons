@@ -1,7 +1,7 @@
 /// Airport selection screen for choosing airports
 /// Displays a list of available airports for route planning
 import 'package:beyond_horizons/models/airport.dart';
-import 'package:beyond_horizons/data/airports_data.dart';
+import 'package:beyond_horizons/services/airport_data_service.dart';
 import 'package:flutter/material.dart';
 
 /// Screen for selecting an airport from the centralized data source
@@ -20,9 +20,26 @@ class _AirportSelectionScreenState extends State<AirportSelectionScreen> {
   @override
   void initState() {
     super.initState();
-    // Load airports from central data source
-    airportList = AirportsData.getAllAirports();
-    filteredAirports = List.from(airportList);
+    // Load airports from JSON data source
+    _loadAirports();
+  }
+
+  /// Load airports from JSON-based data service
+  Future<void> _loadAirports() async {
+    try {
+      final airports = await AirportDataService.getAllAirports();
+      setState(() {
+        airportList = airports;
+        filteredAirports = List.from(airportList);
+      });
+    } catch (e) {
+      print('Error loading airports: $e');
+      // Set empty list as fallback
+      setState(() {
+        airportList = [];
+        filteredAirports = [];
+      });
+    }
   }
 
   @override
@@ -94,7 +111,6 @@ class _AirportSelectionScreenState extends State<AirportSelectionScreen> {
                   ), // Airport name with IATA
                   subtitle: Text(
                     // Detailed airport information as secondary text
-                    "${airport.city}, ${airport.country} • ${airport.hubLevelDescription}\n"
                     "Available Slots: ${airport.availableSlotCapacity} / ${airport.slotCapacity}",
                   ),
                   trailing:

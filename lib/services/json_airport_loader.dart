@@ -65,8 +65,7 @@ class JsonAirportLoader {
       return airportsByRegion;
     } catch (e) {
       print('Error loading airports from JSON: $e');
-      // Fallback to hardcoded data if JSON loading fails
-      return _getFallbackAirports();
+      rethrow; // Re-throw the error instead of using fallback
     }
   }
 
@@ -142,54 +141,5 @@ class JsonAirportLoader {
   static void clearCache() {
     _cachedAirports = null;
     _isLoaded = false;
-  }
-
-  /// Fallback to hardcoded airports if JSON loading fails
-  static Map<String, Map<String, Map<String, List<Airport>>>>
-  _getFallbackAirports() {
-    return {
-      'Europe': {
-        'Germany': {
-          'Frankfurt': [
-            Airport(
-              name: "Frankfurt Airport",
-              iataCode: "FRA",
-              icaoCode: "EDDF",
-              country: "Germany",
-              city: "Frankfurt",
-              region: "Europe",
-              slotCapacity: 500000,
-              currentSlotUsage: 300000,
-              terminalCapacity: 200000,
-              currentTerminalUsage: 150000,
-              maxCapacity: 800000,
-              latitude: 50.0379,
-              longitude: 8.5622,
-              isHub: true,
-              hubLevel: 5,
-            ),
-          ],
-          'Munich': [
-            Airport(
-              name: "Munich Airport",
-              iataCode: "MUC",
-              icaoCode: "EDDM",
-              country: "Germany",
-              city: "Munich",
-              region: "Europe",
-              slotCapacity: 400000,
-              currentSlotUsage: 150000,
-              terminalCapacity: 100000,
-              currentTerminalUsage: 50000,
-              maxCapacity: 600000,
-              latitude: 48.3537,
-              longitude: 11.7750,
-              isHub: true,
-              hubLevel: 4,
-            ),
-          ],
-        },
-      },
-    };
   }
 }
