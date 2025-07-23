@@ -1,30 +1,25 @@
 /// Extended airport data loader for importing from external sources
 /// This class will be used for loading airport data from JSON files or databases
 import 'package:beyond_horizons/models/airport.dart';
-import 'package:beyond_horizons/data/airports_data.dart';
 import 'package:beyond_horizons/services/json_airport_loader.dart';
 
 /// Service class for managing large-scale airport data
 /// Provides methods for loading, filtering, and organizing airport data
 class AirportDataService {
   static Map<String, Map<String, Map<String, List<Airport>>>>? _airportData;
-  static bool _useJsonData = true; // Toggle between JSON and hardcoded data
 
-  /// Initialize airport data from JSON (preferred) or fallback to hardcoded
+  /// Initialize airport data from JSON
   static Future<void> _initializeData() async {
     if (_airportData != null) return;
 
     try {
-      if (_useJsonData) {
-        _airportData = await JsonAirportLoader.loadAirports();
-        print('Airport data loaded from JSON successfully');
-      } else {
-        throw Exception('Using hardcoded fallback');
-      }
+      _airportData = await JsonAirportLoader.loadAirports();
+      print('Airport data loaded from JSON successfully');
     } catch (e) {
-      print('Failed to load JSON data, using hardcoded fallback: $e');
-      _airportData = AirportsData.getAirportsByRegionMap();
-      _useJsonData = false;
+      print('Failed to load JSON data: $e');
+      // Create empty structure as fallback
+      _airportData = {};
+      rethrow; // Re-throw to let caller handle the error
     }
   }
 

@@ -20,13 +20,11 @@ class Airport {
   double latitude; // Latitude coordinate
   double longitude; // Longitude coordinate
 
-  // Hub classification
-  bool isHub; // Whether this airport serves as a hub
-  int
-  hubLevel; // Hub importance level (1-5, where 5 is major international hub)
+  // Demand classification - replaces hub system
+  Map<String, int> demand; // Demand values for economy, business, first class
 
   /// Constructor for creating a new Airport instance
-  /// Requires all capacity, location, and classification information
+  /// Requires all capacity, location, and demand information
   Airport({
     required this.name,
     required this.iataCode,
@@ -41,8 +39,7 @@ class Airport {
     required this.maxCapacity,
     required this.latitude,
     required this.longitude,
-    required this.isHub,
-    required this.hubLevel,
+    required this.demand,
     this.permissionGranted = false, // Default: no permission granted
   });
 
@@ -63,8 +60,7 @@ class Airport {
       maxCapacity: json['maxCapacity'] as int,
       latitude: json['latitude'] as double,
       longitude: json['longitude'] as double,
-      isHub: json['isHub'] as bool,
-      hubLevel: json['hubLevel'] as int,
+      demand: Map<String, int>.from(json['demand'] as Map),
       permissionGranted: json['permissionGranted'] as bool? ?? false,
     );
   }
@@ -159,23 +155,39 @@ class Airport {
         country.toLowerCase() == other.country.toLowerCase();
   }
 
-  /// Get hub level description
-  /// Returns human-readable hub classification
-  String get hubLevelDescription {
-    switch (hubLevel) {
-      case 5:
-        return "Major International Hub";
-      case 4:
-        return "International Hub";
-      case 3:
-        return "Regional Hub";
-      case 2:
-        return "Regional Airport";
-      case 1:
-        return "Local Airport";
-      default:
-        return "Unknown";
+  /// Get demand level description
+  /// Returns human-readable demand classification based on economy demand
+  String get demandLevelDescription {
+    int economyDemand = demand['economy'] ?? 0;
+    if (economyDemand >= 850) {
+      return "Major International Hub";
+    } else if (economyDemand >= 700) {
+      return "International Hub";
+    } else if (economyDemand >= 550) {
+      return "Regional Hub";
+    } else if (economyDemand >= 400) {
+      return "Regional Airport";
+    } else {
+      return "Local Airport";
     }
+  }
+
+  /// Check if airport is a hub based on demand levels
+  /// Returns true if economy demand is above hub threshold
+  bool get isHub {
+    int economyDemand = demand['economy'] ?? 0;
+    return economyDemand >= 700; // Hub threshold
+  }
+
+  /// Get hub level equivalent based on demand
+  /// Returns 1-5 scale compatible with existing code
+  int get hubLevel {
+    int economyDemand = demand['economy'] ?? 0;
+    if (economyDemand >= 850) return 5;
+    if (economyDemand >= 700) return 4;
+    if (economyDemand >= 550) return 3;
+    if (economyDemand >= 400) return 2;
+    return 1;
   }
 
   /// Calculate utilization percentage for slots
@@ -199,7 +211,7 @@ class Airport {
   /// String representation for debugging
   @override
   String toString() {
-    return 'Airport{name: $name, iataCode: $iataCode, city: $city, country: $country, hubLevel: $hubLevel}';
+    return 'Airport{name: $name, iataCode: $iataCode, city: $city, country: $country, demandLevel: ${demand['economy']}}';
   }
 
   /// Equality operator for comparing airports
