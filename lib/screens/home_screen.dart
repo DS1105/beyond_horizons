@@ -9,11 +9,7 @@ import 'package:beyond_horizons/screens/own_aircraft_screen.dart';
 import 'package:beyond_horizons/services/airline_manager.dart';
 // Economy Simulation Imports - Monatliche Wirtschaftssimulation
 import 'package:beyond_horizons/services/economy/economic_simulation_engine.dart';
-import 'package:beyond_horizons/services/economy/airport_demand_calculator.dart';
-import 'package:beyond_horizons/services/economy/monthly_load_calculator.dart';
-import 'package:beyond_horizons/services/economy/route_cost_calculator.dart';
-import 'package:beyond_horizons/services/economy/route_revenue_calculator.dart';
-import 'package:beyond_horizons/services/economy/cashflow_calculator.dart';
+import 'package:beyond_horizons/services/date_manager.dart';
 
 /// Einfaches Dashboard für die Airline-Simulation
 class HomeScreen extends StatefulWidget {
@@ -25,27 +21,29 @@ class _HomeScreenState extends State<HomeScreen> {
   // Airline-Informationen aus dem globalen Manager
   String airlineName = AirlineManager().airlineName;
 
-  // Spiel-Datum State (startet Januar 2025)
-  // Diese Werte werden bei jedem "Nächster Monat" Klick aktualisiert
-  int currentMonth = 1; // Januar
-  int currentYear = 2025;
+  // Use global DateManager instead of local date variables
+  final DateManager _dateManager = DateManager();
 
-  // Monats-Namen für die deutsche Anzeige im UI
-  // Index 0 = Januar, Index 11 = Dezember
-  final List<String> monthNames = [
-    'Januar',
-    'Februar',
-    'März',
-    'April',
-    'Mai',
-    'Juni',
-    'Juli',
-    'August',
-    'September',
-    'Oktober',
-    'November',
-    'Dezember',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Listen for date changes from other screens
+    _dateManager.addListener(_onDateChanged);
+  }
+
+  @override
+  void dispose() {
+    // Remove listener to prevent memory leaks
+    _dateManager.removeListener(_onDateChanged);
+    super.dispose();
+  }
+
+  /// Called when date changes in any screen
+  void _onDateChanged() {
+    setState(() {
+      // Trigger UI rebuild to show new date
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         Text(
-                          "${monthNames[currentMonth - 1]} $currentYear",
+                          _dateManager.getFormattedDate(),
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -223,77 +221,56 @@ class _HomeScreenState extends State<HomeScreen> {
   ///
   /// Diese Methode orchestriert den gesamten monatlichen Simulationszyklus:
   /// 1. Flughafennachfrage aktualisieren
-  /// 2. Routenauslastung berechnen
+  /// 2. Routenauslastung berechnen (FUNKTIONSFÄHIG!)
   /// 3. Kosten kalkulieren
   /// 4. Einnahmen kalkulieren
   /// 5. Cashflow zusammenfassen
   /// 6. Finanzen aktualisieren
   /// 7. Datum voranschreiten
-  ///
-  /// Aktuell werden nur Logs ausgegeben - die echte Simulation wird später implementiert
-  void _advanceToNextMonth() {
+  void _advanceToNextMonth() async {
     print("=== NÄCHSTER MONAT SIMULATION GESTARTET ===");
 
-    // TODO: Hier werden später die Economy-Klassen aufgerufen:
-    // Die auskommentierte Logik zeigt die geplante Struktur
+    try {
+      // ECHTE SIMULATION: EconomicSimulationEngine verwenden
+      final simulationEngine = EconomicSimulationEngine();
 
-    // 1. Airport Demand aktualisieren
-    // Berechnet saisonale Schwankungen und Marktentwicklung für jeden Flughafen
-    // final airportDemandCalculator = AirportDemandCalculator();
-    // airportDemandCalculator.updateMonthlyDemand();
-    print("1. Airport Demand Calculator - aktualisiere Flughafennachfrage");
+      // 1. Airport Demand aktualisieren (noch nicht implementiert)
+      print("1. Airport Demand Calculator - aktualisiere Flughafennachfrage");
 
-    // 2. Monatliche Auslastung berechnen
-    // Ermittelt Load Factor basierend auf Angebot vs. Nachfrage
-    // final monthlyLoadCalculator = MonthlyLoadCalculator();
-    // final loadFactors = monthlyLoadCalculator.calculateMonthlyLoads();
-    print("2. Monthly Load Calculator - berechne Auslastungsfaktoren");
+      // 2. FUNKTIONSFÄHIG: Monatliche Auslastung berechnen
+      await simulationEngine.step2_CalculateRouteLoads();
 
-    // 3. Route-Kosten berechnen
-    // Treibstoff, Gehälter, Wartung, Flughafengebühren etc.
-    // final routeCostCalculator = RouteCostCalculator();
-    // final totalCosts = routeCostCalculator.calculateMonthlyCosts();
-    print("3. Route Cost Calculator - berechne Betriebskosten");
-
-    // 4. Route-Einnahmen berechnen
-    // Ticketverkäufe basierend auf Auslastung und Preisen
-    // final routeRevenueCalculator = RouteRevenueCalculator();
-    // final totalRevenue = routeRevenueCalculator.calculateMonthlyRevenue();
-    print("4. Route Revenue Calculator - berechne Einnahmen");
-
-    // 5. Cashflow aggregieren
-    // Netto-Ergebnis: Einnahmen minus Kosten
-    // final cashflowCalculator = CashflowCalculator();
-    // final netCashflow = cashflowCalculator.calculateNetCashflow(totalRevenue, totalCosts);
-    print("5. Cashflow Calculator - berechne Netto-Ergebnis");
-
-    // 6. FinanceManager aktualisieren
-    // Kapital der Airline anpassen (Gewinn/Verlust)
-    // FinanceManager().addToCapital(netCashflow);
-    print("6. Finance Manager - aktualisiere Kapital");
-
-    // 7. Datum voranschreiten
-    // UI-State aktualisieren: nächster Monat, ggf. nächstes Jahr
-    setState(() {
-      currentMonth++;
-      if (currentMonth > 12) {
-        currentMonth = 1;
-        currentYear++;
+      // Debug: Zeige Load Factor Ergebnisse
+      final loadFactors = simulationEngine.getCurrentLoadFactors();
+      if (loadFactors != null && loadFactors.isNotEmpty) {
+        print("   📊 Detaillierte Load Factors:");
+        for (var result in loadFactors) {
+          print("      ${result.toString()}");
+        }
       }
+
+      // 3-6. Noch nicht implementiert - placeholder logs
+      print("3. Route Cost Calculator - berechne Betriebskosten");
+      print("4. Route Revenue Calculator - berechne Einnahmen");
+      print("5. Cashflow Calculator - berechne Netto-Ergebnis");
+      print("6. Finance Manager - aktualisiere Kapital");
+    } catch (e) {
+      print("❌ Fehler während der Simulation: $e");
+      // Weiter mit Datum-Update trotz Fehler
+    }
+
+    // 7. Datum voranschreiten (funktioniert immer)
+    setState(() {
+      _dateManager.advanceToNextMonth();
     });
 
-    print(
-      "7. Datum aktualisiert: ${monthNames[currentMonth - 1]} $currentYear",
-    );
+    print("7. Datum aktualisiert: ${_dateManager.getFormattedDate()}");
     print("=== SIMULATION ABGESCHLOSSEN ===");
 
     // Erfolgs-Snackbar anzeigen
-    // Gibt dem Spieler visuelles Feedback über den Monatswechsel
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          "Monat ${monthNames[currentMonth - 1]} $currentYear erreicht!",
-        ),
+        content: Text("Monat ${_dateManager.getFormattedDate()} erreicht!"),
         backgroundColor: Colors.green,
         duration: Duration(seconds: 2),
       ),
