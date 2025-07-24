@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:beyond_horizons/services/route_manager.dart';
 import 'package:beyond_horizons/models/route.dart' as RouteModel;
 import 'package:beyond_horizons/screens/route_creation_screen_1.dart';
+import 'package:beyond_horizons/services/economy/economic_simulation_engine.dart';
+import 'package:beyond_horizons/services/economy/monthly_load_calculator.dart';
+import 'package:beyond_horizons/services/date_manager.dart';
 
 /// Screen für Routen-Übersicht und Verwaltung
 class RoutesOverviewScreen extends StatefulWidget {
@@ -10,6 +13,34 @@ class RoutesOverviewScreen extends StatefulWidget {
 }
 
 class _RoutesOverviewScreenState extends State<RoutesOverviewScreen> {
+  // Use global DateManager instead of local date variables
+  final DateManager _dateManager = DateManager();
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen for date changes from other screens
+    _dateManager.addListener(_onDateChanged);
+    // Trigger UI refresh when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    // Remove listener to prevent memory leaks
+    _dateManager.removeListener(_onDateChanged);
+    super.dispose();
+  }
+
+  /// Called when date changes in any screen
+  void _onDateChanged() {
+    setState(() {
+      // Trigger UI rebuild to show new date
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final routes = RouteManager().getAllRoutes();
@@ -21,6 +52,51 @@ class _RoutesOverviewScreenState extends State<RoutesOverviewScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // === DATUM UND SIMULATION SEKTION ===
+            // Zeigt aktuelles Spieldatum und "Nächster Monat" Button
+            Card(
+              color: Colors.blue[50],
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Linke Seite: Datum-Anzeige
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Aktueller Monat:",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        Text(
+                          _dateManager.getFormattedDate(),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Rechte Seite: Simulation-Button
+                    ElevatedButton.icon(
+                      icon: Icon(Icons.fast_forward),
+                      label: Text("Nächster Monat"),
+                      onPressed: _advanceToNextMonth,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+
             Text(
               "Alle Routen",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -169,6 +245,74 @@ class _RoutesOverviewScreenState extends State<RoutesOverviewScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
+
+              SizedBox(height: 12),
+
+              // Auslastung pro Sitzklasse
+              Container(
+                padding: EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Aktuelle Auslastung:",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    _buildLoadFactorRow(
+                      "Economy",
+                      _getEconomyLoadFactor(route),
+                    ),
+                    _buildLoadFactorRow(
+                      "Business",
+                      _getBusinessLoadFactor(route),
+                    ),
+                    _buildLoadFactorRow("First", _getFirstLoadFactor(route)),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 8),
+
+              // Monatliche Einnahmen
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.green[200]!),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Monatliche Einnahmen:",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.green[700],
+                      ),
+                    ),
+                    Text(
+                      "${_getMonthlyRevenue(route)} USD",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green[800],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -267,6 +411,164 @@ class _RoutesOverviewScreenState extends State<RoutesOverviewScreen> {
           ),
           Expanded(child: Text(value)),
         ],
+      ),
+    );
+  }
+
+  /// Hilfsmethode für Load Factor Zeilen
+  Widget _buildLoadFactorRow(String className, double loadFactor) {
+    Color color = _getLoadFactorColor(loadFactor);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            className,
+            style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: color.withOpacity(0.3)),
+            ),
+            child: Text(
+              "${(loadFactor * 100).toStringAsFixed(1)}%",
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Hilfsmethode für Load Factor Farben
+  Color _getLoadFactorColor(double loadFactor) {
+    if (loadFactor >= 0.8) return Colors.green;
+    if (loadFactor >= 0.6) return Colors.orange;
+    return Colors.red;
+  }
+
+  // === LOAD FACTOR BERECHNUNGEN - NUTZT ECHTE SIMULATION ===
+
+  /// Berechnet aktuelle Economy Load Factor für eine Route
+  double _getEconomyLoadFactor(RouteModel.Route route) {
+    // Nutze die echte MonthlyLoadCalculator Logik
+    MonthlyLoadCalculator calculator = MonthlyLoadCalculator();
+    List<LoadFactorResult> results = calculator.calculateMonthlyLoads();
+
+    // Finde die passende Route in den Ergebnissen
+    LoadFactorResult? routeResult;
+    try {
+      routeResult = results.firstWhere((result) => result.routeId == route.id);
+      return routeResult.economyLoadFactor;
+    } catch (e) {
+      // Fallback: Route nicht gefunden, nutze Placeholder
+      return 0.6 + (route.id! * 0.03) % 0.3;
+    }
+  }
+
+  /// Berechnet aktuelle Business Load Factor für eine Route
+  double _getBusinessLoadFactor(RouteModel.Route route) {
+    // Nutze die echte MonthlyLoadCalculator Logik
+    MonthlyLoadCalculator calculator = MonthlyLoadCalculator();
+    List<LoadFactorResult> results = calculator.calculateMonthlyLoads();
+
+    // Finde die passende Route in den Ergebnissen
+    LoadFactorResult? routeResult;
+    try {
+      routeResult = results.firstWhere((result) => result.routeId == route.id);
+      return routeResult.businessLoadFactor;
+    } catch (e) {
+      // Fallback: Route nicht gefunden, nutze Placeholder
+      return 0.4 + (route.id! * 0.05) % 0.3;
+    }
+  }
+
+  /// Berechnet aktuelle First Load Factor für eine Route
+  double _getFirstLoadFactor(RouteModel.Route route) {
+    // Nutze die echte MonthlyLoadCalculator Logik
+    MonthlyLoadCalculator calculator = MonthlyLoadCalculator();
+    List<LoadFactorResult> results = calculator.calculateMonthlyLoads();
+
+    // Finde die passende Route in den Ergebnissen
+    LoadFactorResult? routeResult;
+    try {
+      routeResult = results.firstWhere((result) => result.routeId == route.id);
+      return routeResult.firstLoadFactor;
+    } catch (e) {
+      // Fallback: Route nicht gefunden, nutze Placeholder
+      return 0.2 + (route.id! * 0.07) % 0.3;
+    }
+  }
+
+  /// TODO: Ersetzen mit echter Einnahmen-Berechnung
+  String _getMonthlyRevenue(RouteModel.Route route) {
+    // Placeholder: Simuliere Einnahmen basierend auf Route ID und Kapazität
+    int baseRevenue = (route.id! * 50000) + (route.aircraftCount * 25000);
+    return baseRevenue.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
+  /// Methode zum Voranschreiten zum nächsten Monat
+  /// Führt die komplette Wirtschaftssimulation aus (gleich wie HomeScreen)
+  void _advanceToNextMonth() async {
+    print("=== NÄCHSTER MONAT SIMULATION GESTARTET (Routen-Screen) ===");
+
+    try {
+      // ECHTE SIMULATION: EconomicSimulationEngine verwenden
+      final simulationEngine = EconomicSimulationEngine();
+
+      // 1. Airport Demand aktualisieren (noch nicht implementiert)
+      print("1. Airport Demand Calculator - aktualisiere Flughafennachfrage");
+
+      // 2. FUNKTIONSFÄHIG: Monatliche Auslastung berechnen
+      await simulationEngine.step2_CalculateRouteLoads();
+
+      // Debug: Zeige Load Factor Ergebnisse
+      final loadFactors = simulationEngine.getCurrentLoadFactors();
+      if (loadFactors != null && loadFactors.isNotEmpty) {
+        print("   📊 Detaillierte Load Factors:");
+        for (var result in loadFactors) {
+          print("      ${result.toString()}");
+        }
+      }
+
+      // 3-6. Noch nicht implementiert - placeholder logs
+      print("3. Route Cost Calculator - berechne Betriebskosten");
+      print("4. Route Revenue Calculator - berechne Einnahmen");
+      print("5. Cashflow Calculator - berechne Netto-Ergebnis");
+      print("6. Finance Manager - aktualisiere Kapital");
+    } catch (e) {
+      print("❌ Fehler während der Simulation: $e");
+      // Weiter mit Datum-Update trotz Fehler
+    }
+
+    // 7. Datum voranschreiten (funktioniert immer)
+    setState(() {
+      _dateManager.advanceToNextMonth();
+    });
+
+    print("7. Datum aktualisiert: ${_dateManager.getFormattedDate()}");
+    print("=== SIMULATION ABGESCHLOSSEN ===");
+
+    // Erfolgs-Snackbar anzeigen
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Monat ${_dateManager.getFormattedDate()} erreicht! Load Factors aktualisiert.",
+        ),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
       ),
     );
   }
